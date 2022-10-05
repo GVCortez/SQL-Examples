@@ -1,0 +1,28 @@
+# Looking to determine the average popularity, danceability, and energy by artist and track via BigQuery.
+SELECT
+Artist_Name,
+Track_Name,
+avg(Popularity) as Avg_Popularity,
+avg(Danceability) as Avg_Danceability,
+avg(Energy) as Avg_Energy
+from `mlsdata-364419.Spotify.top50`
+group by Artist_Name, Track_Name;
+
+# Then I determined the top 6 artists ranked by song popularity.
+SELECT
+Artist_Name,
+Track_Name,
+Popularity
+from `mlsdata-364419.Spotify.top50`
+order by popularity DESC
+# I limited by 6 due to there being a 3-way tie in the popularity column
+limit 6;
+
+# Then I found the artist/track names where the music genre was pop, popularity over 85, and length of the song was over 180 seconds. 
+SELECT
+Artist_Name,
+Track_Name,
+from `mlsdata-364419.Spotify.top50`
+where Genre = 'pop'
+AND Popularity > 85
+and Length_ > 180;
