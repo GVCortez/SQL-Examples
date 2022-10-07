@@ -26,3 +26,42 @@ from `mlsdata-364419.Spotify.top50`
 where Genre = 'pop'
 AND Popularity > 85
 and Length_ > 180;
+
+# Then I found the average beats per minute (BPM) of the top 5 highest energy songs.
+SELECT
+AVG(Beats_Per_Minute) as BPM, 
+FROM
+(
+  SELECT
+  Beats_Per_Minute
+  FROM
+  mlsdata-364419.Spotify.top50
+  ORDER BY energy DESC
+  LIMIT 5
+);
+
+# Then I found the top 3 artists with the longest songs
+SELECT
+Artist_Name, 
+Track_Name,
+ROUND(AVG(Length_ / 60),2) AS Song_Duration,
+FROM 
+mlsdata-364419.Spotify.top50
+GROUP BY Artist_Name, Track_Name
+ORDER BY Song_Duration ASC
+LIMIT 3;
+
+# Then I found the artists with the highest average popularity. 
+WITH popularity_CTE AS (
+  SELECT
+    AVG(popularity) as average_popularity,
+    Artist_Name
+  FROM
+    mlsdata-364419.Spotify.top50
+  GROUP BY Artist_Name
+)
+SELECT
+  Artist_Name,
+  average_popularity
+FROM popularity_CTE
+where average_popularity > 90;
