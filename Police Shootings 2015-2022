@@ -1,1 +1,101 @@
-# First I created a table using data that I gathered from Kaggle. Attached is the link for this data: [US Police Shootings](https://www.kaggle.com/datasets/ramjasmaurya/us-police-shootings-from-20152022 "US Police Shootings")
+# First I created a table using data that I gathered from Kaggle. Attached is the link for this data: https://www.kaggle.com/datasets/ramjasmaurya/us-police-shootings-from-20152022
+CREATE TABLE Shootings (
+id INT,
+name VARCHAR (255),
+date DATE,
+manner_of_death VARCHAR (255),
+armed VARCHAR (255),
+age INT,
+gender VARCHAR (1),
+race VARCHAR (1),
+city VARCHAR (255),
+state VARCHAR (2),
+signs_of_mental_illness VARCHAR (255),
+threat_level VARCHAR (255),
+flee VARCHAR (255),
+body_camera VARCHAR (255),
+longitude DECIMAL(6,3),
+latitude DECIMAL (6,3),
+is_geocoding_exact VARCHAR (255)
+);
+
+# From there, I decided to take a closer look at the data by selecting all of the data within the first 10 columns. 
+SELECT *
+FROM Shootings
+LIMIT 10;
+
+# Then I began to look into cases grouped by race, gender, and state
+
+  # 1. Group by Race
+  SELECT 
+  race, COUNT(id) 
+   From Shootings
+  Group by race
+
+  # 2. Group by Gender
+  SELECT 
+  gender, COUNT(id)
+  FROM Shootings
+  GROUP BY gender
+
+  # 3. Group by State
+  SELECT
+  state, COUNT(id) AS deaths
+  FROM Shootings
+  GROUP BY state
+  ORDER BY deaths DESC;
+  
+# I also wanted to find top 5 cities whose names start with the letter "A" and have the highest amount of deaths.
+SELECT 
+DISTINCT(city), COUNT(id) AS deaths
+FROM Shootings
+WHERE city LIKE 'A%'
+GROUP BY city
+ORDER BY deaths DESC
+LIMIT 5;
+
+# With the previous query, we can see that California has the highest deaths out of all states. I decided to find what cities had the highest deaths. 
+SELECT
+city, COUNT(id) AS deaths
+FROM Shootings
+WHERE state = 'CA'
+GROUP BY city
+ORDER BY deaths DESC;
+
+# Then I found the most frequent form of death in California.
+SELECT
+manner_of_death, COUNT(id) AS deaths
+FROM Shootings
+WHERE state = 'CA';
+
+# I then looked into how many of these vitims suffered from mental illness.
+SELECT
+manner_of_death, COUNT(id) AS deaths
+FROM Shootings
+WHERE signs_of_mental_illness = 'TRUE'
+AND state = 'CA';
+
+# Then I found the top 3 weapons (if applicable) the victims had on them. I excluded 'unarmed' as this was the 3rd top reason for death.
+SELECT
+armed, COUNT(id) AS deaths
+FROM Shootings
+WHERE armed is not 'unarmed'
+GROUP BY armed
+ORDER BY deaths DESC
+LIMIT 3;
+
+# I also found the death breakdown by race while the victim was unarmed. 
+SELECT
+race, COUNT(id) AS deaths
+FROM Shootings
+WHERE armed = 'unarmed'
+GROUP BY race
+ORDER BY deaths DESC;
+
+
+
+
+
+
+
+
