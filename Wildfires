@@ -1,0 +1,26 @@
+# This code was gathered from a Kaggle dataset. 
+
+# I started by looking into wildfires that were larger than 50,000 acres in each state/county. I also included the name of the fire and the year it occurred. 
+SELECT
+STATE, COUNTY, FIRE_YEAR, FIRE_NAME, FIRE_SIZE
+FROM Fires
+WHERE FIRE_SIZE > 50000
+AND COUNTY IS NOT NULL
+ORDER BY STATE, FIRE_SIZE;
+
+# I then went deeper and found the 5 largest  wildfires by county within California.
+SELECT
+STATE, COUNTY, FIRE_YEAR, FIRE_NAME, FIRE_SIZE
+FROM Fires
+WHERE FIRE_SIZE > 50000
+AND COUNTY IS NOT NULL
+AND STATE = 'CA'
+ORDER BY FIRE_SIZE DESC
+LIMIT 5;
+
+# I then found the amount of unique wildires that occurred in California in the year 2006. 
+SELECT
+COUNT(FIRE_NAME) as fires
+FROM Fires
+WHERE STATE = 'CA'
+AND FIRE_YEAR = '2006'
