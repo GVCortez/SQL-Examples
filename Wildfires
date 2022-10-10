@@ -24,3 +24,19 @@ COUNT(FIRE_NAME) as fires
 FROM Fires
 WHERE STATE = 'CA'
 AND FIRE_YEAR = '2006'
+
+# Then I took a look at how many fires were recorded by the South Dakota Wildland Supression Fire Supression Unit in 2015.
+SELECT
+COUNT(OBJECTID) AS fires_count,
+NWCG_REPORTING_UNIT_NAME
+FROM Fires
+WHERE NWCG_REPORTING_UNIT_NAME LIKE 'South Dakota%'
+AND FIRE_YEAR = '2015'
+
+# Then I found how many of those fires were over 5,000 acres in 2015.
+SELECT
+COUNT(OBJECTID) as fires_count
+FROM Fires
+WHERE NWCG_REPORTING_UNIT_NAME LIKE "South Dakota%'
+AND FIRE_YEAR = '2015'
+AND FIRE_SIZE = '5000'
