@@ -50,4 +50,173 @@ VALUES
   ('A', '2021-01-07'),
   ('B', '2021-01-09');
   
+# With the tables uploaded to SQLite Studio, I will now begin to answer the case study questions. 
+
+#1. What is the total amount each customer spent at the restaurant?
+SELECT
+s.customer_id,
+SUM(m.price) as customer_spend
+FROM sales AS s
+JOIN menu AS m
+  ON s.product_id = m.product_id
+GROUP BY s.customer_id;
+
+#2. How many days has each customer visited the restaurant?
+SELECT
+customer_id
+COUNT((DISTINCT(order_date)) as days_visited
+FROM sales
+GROUP BY order_date;
+
+#3. What was the first item from the menu purchased by each customer?
+WITH first_order_CTE AS (
+SELECT
+customer_id,
+order_date,
+product_name,
+    DENSE_RANK() OVER(PARTITION BY s.customer_id ORDER BY s.order_date) AS Rank
+    FROM sales AS s
+    JOIN menu AS m
+        ON s.product_id = m.product_id
+)
+SELECT
+customer_id,
+product_name
+FROM first_order_CTE
+WHERE Rank = 1
+GROUP BY customer_id, product_name;
+
+#4. What is the most purchased item on the menu and how many times was it purchased by all customers?
+SELECT TOP 1 M.product_name , COUNT(S.product_id)
+FROM menu AS m
+JOIN sales as s
+ON m.product_id = s.product_id
+GROUP BY m.product_name
+ORDER BY COUNT(s.product_id) DESC;
+
+5. Which item was the most popular for each customer?
+WITH most_popular AS (
+SELECT 
+s.customer_id,
+m.product_name,
+COUNT(m.product_id) AS amount_ordered
+DENSE_RANK() OVER(PARTITION BY s.customer_id ORDER BY COUNT(s.customer_id) DESC) AS rank
+FROM sales as s
+JOIN menu as m
+ON s.product_id = m.product_id
+GROUP BY s.customer_id, m.product_name);
+
+SELECT customer_id, product_name, order_count
+FROM most_popular_CTE 
+WHERE rank = 1;
+
+#6. Which item was purchased first by the customer after they became a member?
+WITH first_purchase AS 
+(
+  SELECT 
+    s.customer_id, 
+    m.join_date, 
+    s.order_date, 
+    s.product_id,
+    DENSE_RANK() OVER(PARTITION BY s.customer_id ORDER BY s.order_date) AS rank
+  FROM sales AS s
+	JOIN members AS m
+		ON s.customer_id = m.customer_id
+	WHERE s.order_date >= m.join_date)
+
+SELECT 
+  s.customer_id, 
+  s.order_date, 
+  m2.product_name 
+FROM first_purhcase AS s
+JOIN menu AS m2
+	ON s.product_id = m2.product_id
+WHERE rank = 1;
+
+#7. Which item was purchased just before the customer became a member?
+WITH purchase_before_member_CTE AS 
+(
+  SELECT 
+    s.customer_id, 
+    m.join_date, 
+    s.order_date, 
+    s.product_id,
+    DENSE_RANK() OVER(PARTITION BY s.customer_id ORDER BY s.order_date DESC)  AS rank
+  FROM sales AS s
+	JOIN members AS m
+		ON s.customer_id = m.customer_id
+	WHERE s.order_date < m.join_date
+)
+
+SELECT 
+  s.customer_id, 
+  s.order_date, 
+  m2.product_name 
+FROM purchase_before_member_CTE AS s
+JOIN menu AS m2
+	ON s.product_id = m2.product_id
+WHERE rank = 1;
+
+#8. What is the total items and amount spent for each member before they became a member?
+SELECT
+s.customer_id,
+COUNT(DISTINCT s.product_id) AS items_purchased,
+SUM(m.price) AS total_cost
+FROM sales as s
+JOIN members as m2
+  ON s.customer_id = m2.customer_id
+JOIN menu as m
+  ON s.product_id = m.product_id
+WHERE s.order_date < m2.join_date
+GROUP BY s.customer_id
+
+#9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+WITH price_points_cte AS
+(
+	SELECT *, 
+		CASE WHEN product_name = 'sushi' THEN price * 20
+		ELSE price * 10 END AS points
+	FROM menu
+)
+
+SELECT 
+  s.customer_id, 
+  SUM(p.points) AS total_points
+FROM price_points_cte AS p
+JOIN sales AS s
+	ON p.product_id = s.product_id
+GROUP BY s.customer_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
